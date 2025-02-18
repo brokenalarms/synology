@@ -1,0 +1,23 @@
+services:
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    ports:
+      - 32400:32400/tcp
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+      - VERSION=latest
+      - PLEX_CLAIM= #Your Plex Claim Code
+    volumes:
+      - /volume1/docker/plex:/config
+      - /volume1/Media:/data/media
+      - /volume1/Backup/Videos:/data/personal
+    devices:
+      - /dev/dri:/dev/dri
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    network_mode: host

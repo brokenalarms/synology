@@ -1,0 +1,21 @@
+name: golinks
+services:
+    golink:
+        container_name: golink
+        # stdin_open: true
+        # tty: true
+        user: root
+        # ports:
+            # - 8080:8080 # only for dev
+        volumes:
+            - /volume1/docker/golinks:/home/nonroot
+        image: ghcr.io/tailscale/golink:main
+        environment:
+          - PUID=1031
+          - PGID=65537
+          # - PUID=65532 # nonroot user (also needs to be set on dir externally with sudo chown 65532)
+          #- PGID=65532 # nonroot user (also needs to be set on dir externally with sudo chown 65532)
+          #- TZ=America/Los_Angeles
+        security_opt:
+          - no-new-privileges:true
+        restart: always

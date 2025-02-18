@@ -1,0 +1,262 @@
+env_file:
+  - /volume1/docker/portainer-ce/compose/2/stack.env
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8388:8388/udp # Shadowsocks
+      - 8090:8090/tcp # port for qbittorrent
+      - 8091:8091/tcp # sabnzbd
+      - 8191:8191/tcp # flaresolverr
+      - 9696:9696/tcp # prowlarr
+      - 8989:8989/tcp # sonarr
+      - 7878:7878/tcp # radarr
+      - 5055:5055/tcp # overseerr
+      - 6767:6767/tcp # bazarr
+      - 8787:8787/tcp # readarr
+      - 775:8095/tcp # calibre-server VNC
+      - 776:8081/tcp # calibre-server sharing
+      - 4755:7575/tcp # homarr
+    volumes:
+      - /volume1/docker/gluetun:/gluetun
+      - /volume1/docker/qbittorrent:/config
+      - /volume1/Media/downloads:/data/torrents      
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=wireguard
+      - VPN_ENDPOINT_IP=${VPN_ENDPOINT_IP}
+      - VPN_ENDPOINT_PORT=${VPN_ENDPOINT_PORT}
+      - VPN_PORT_FORWARDING=on
+      - VPN_PORT_FORWARDING_PROVIDER=protonvpn
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY} #remove if using openvpn
+      - WIREGUARD_ADDRESSES=10.2.0.2/32 #IP V4 Only - remove if using openvpn
+      - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
+      # - SERVER_COUNTRIES=Sweden
+      - HTTPPROXY=off #change to on if you wish to enable
+      - SHADOWSOCKS=off #change to on if you wish to enable
+      - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/24,192.168.1.0/24 #change this in line with your subnet see note on guide.
+      # - FIREWALL_VPN_INPUT_PORTS=12345 #uncomment this line and change the port as per the note on the guide
+    network_mode: dockerbridge
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+
+  qbittorrent:
+    image: linuxserver/qbittorrent:4.6.7
+    container_name: vpn-qbittorrent
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - WEBUI_PORT=8090
+      - UMASK=022
+    volumes:
+      - /volume1/docker/qbittorrent:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+  linuxserver-prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: vpn-prowlarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/prowlarr:/config
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: vpn-sonarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/sonarr:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+  
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: vpn-radarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/radarr:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+  overseerr:
+    image: linuxserver/overseerr
+    container_name: vpn-overseerr
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=AmericaLos_Angeles
+    volumes:
+     - /volume1/docker/overseerr:/config
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: vpn-bazarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/bazarr:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+  readarr:
+    image: linuxserver/readarr:develop
+    container_name: vpn-readarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/readarr:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
+
+      
+  calibre-server:
+    image: ghcr.io/linuxserver/calibre
+    container_name: vpn-calibre-server
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - CUSTOM_USER=${CALIBRE_CUSTOM_USER}
+      - PASSWORD=${CALIBRE_PASSWORD}
+      - CUSTOM_PORT=${CALIBRE_CUSTOM_PORT}
+      - CLI_ARGS=${CALIBRE_CLI_ARGS}
+    volumes:
+      - /volume1/docker/calibre/config:/config
+      - /volume1/docker/calibre/upload:/uploads
+      - /volume1/docker/calibre/plugins:/plugins
+      - /volume1/Media:/data #this is where your ebooks will end up
+    restart: unless-stopped
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  sabnzbd:
+    image: linuxserver/sabnzbd:latest
+    container_name: vpn-sabnzbd
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - UMASK=022
+      - TZ=America/Los_Angeles
+    volumes:
+      - /volume1/docker/sabnzbd:/config
+      - /volume1/Media:/data
+
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    mem_limit: 4g
+    cpu_shares: 768
+    security_opt:
+      - no-new-privileges:true
+    restart: on-failure:5
+    volumes:
+      - /volume1/docker/homarr:/app/data/configs:rw
+      - /volume1/docker/homarr/data:/data:rw
+      - /volume1/docker/homarr/icons:/app/public/icons:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+     TZ: America/Los_Angeles
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
