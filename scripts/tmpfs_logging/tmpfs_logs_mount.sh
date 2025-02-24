@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# this is a hack/extra work to try and make your NAS shut up
+# no need if you have an SSD cache installed.
+
 # Define tmpfs mount names, paths, and initial sizes
 declare -A TMPFS_MOUNTS=(
     ["sonarr-cache"]="/volume1/docker/sonarr/logs"

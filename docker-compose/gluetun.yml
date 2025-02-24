@@ -1,5 +1,5 @@
 env_file:
-  - /volume1/docker/portainer-ce/compose/2/stack.env
+  - stack.env
 
 services:
   gluetun:
@@ -11,9 +11,8 @@ services:
       - /dev/net/tun:/dev/net/tun
     ports:
       - 8388:8388/udp # Shadowsocks
-      - 8090:8090/tcp # port for qbittorrent
+      - 8090:8090/tcp # qbittorrent
       - 8091:8091/tcp # sabnzbd
-      - 8191:8191/tcp # flaresolverr
       - 9696:9696/tcp # prowlarr
       - 8989:8989/tcp # sonarr
       - 7878:7878/tcp # radarr
@@ -44,7 +43,7 @@ services:
       - HTTPPROXY=off #change to on if you wish to enable
       - SHADOWSOCKS=off #change to on if you wish to enable
       - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/24,192.168.1.0/24 #change this in line with your subnet see note on guide.
-      # - FIREWALL_VPN_INPUT_PORTS=12345 #uncomment this line and change the port as per the note on the guide
+      # - FIREWALL_VPN_INPUT_PORTS=12345 #uncomment this line and change the port if needed as per the note on the guide
     network_mode: dockerbridge
     labels:
       - com.centurylinklabs.watchtower.enable=false
