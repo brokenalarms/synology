@@ -23,6 +23,7 @@ services:
       - 776:8081/tcp # calibre-server sharing
       - 4755:7575/tcp # homarr
       - 8686:8686/tcp # lidarr
+      - 8888:80/tcp # openbooks
     volumes:
       - /volume1/docker/gluetun:/gluetun
       - /volume1/docker/qbittorrent:/config
