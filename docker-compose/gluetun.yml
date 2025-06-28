@@ -281,3 +281,19 @@ services:
     restart: always
     healthcheck:
       disable: true
+
+  openbooks:
+    image: evanbuss/openbooks:latest
+    container_name: vpn-openbooks
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+    volumes:
+      - /volume1/docker/openbooks:/config
+      - /volume1/Media/Books/Daniel/uploads:/downloads
+    restart: always
