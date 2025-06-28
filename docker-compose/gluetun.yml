@@ -22,6 +22,7 @@ services:
       - 775:8095/tcp # calibre-server VNC
       - 776:8081/tcp # calibre-server sharing
       - 4755:7575/tcp # homarr
+      - 8686:8686/tcp # lidarr
     volumes:
       - /volume1/docker/gluetun:/gluetun
       - /volume1/docker/qbittorrent:/config
@@ -259,3 +260,24 @@ services:
     depends_on:
       gluetun:
         condition: service_healthy
+
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: vpn-lidarr
+    environment:
+      - PUID=1031
+      - PGID=65537
+      - TZ=America/Los_Angeles
+      - UMASK=022
+    volumes:
+      - /volume1/docker/lidarr:/config
+      - /volume1/Media:/data
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    restart: always
+    healthcheck:
+      disable: true
