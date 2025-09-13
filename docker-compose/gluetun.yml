@@ -29,22 +29,22 @@ services:
       - /volume1/docker/qbittorrent:/config
       - /volume1/Media/downloads:/data/torrents      
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - VPN_SERVICE_PROVIDER=custom
-      - VPN_TYPE=wireguard
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
       - VPN_ENDPOINT_IP=${VPN_ENDPOINT_IP}
       - VPN_ENDPOINT_PORT=${VPN_ENDPOINT_PORT}
-      - VPN_PORT_FORWARDING=on
-      - VPN_PORT_FORWARDING_PROVIDER=protonvpn
+      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
+      - VPN_PORT_FORWARDING_PROVIDER=${VPN_PORT_FORWARDING_PROVIDER}
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY} #remove if using openvpn
-      - WIREGUARD_ADDRESSES=10.2.0.2/32 #IP V4 Only - remove if using openvpn
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES} #IP V4 Only - remove if using openvpn
       - WIREGUARD_PUBLIC_KEY=${WIREGUARD_PUBLIC_KEY}
       # - SERVER_COUNTRIES=Sweden
-      - HTTPPROXY=off #change to on if you wish to enable
-      - SHADOWSOCKS=off #change to on if you wish to enable
-      - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/24,192.168.1.0/24 #change this in line with your subnet see note on guide.
+      - HTTPPROXY=${HTTPPROXY} #change to on if you wish to enable
+      - SHADOWSOCKS=${SHADOWSOCKS} #change to on if you wish to enable
+      - FIREWALL_OUTBOUND_SUBNETS=${FIREWALL_OUTBOUND_SUBNETS} #change this in line with your subnet see note on guide.
       # - FIREWALL_VPN_INPUT_PORTS=12345 #uncomment this line and change the port if needed as per the note on the guide
     network_mode: dockerbridge
     labels:
@@ -58,11 +58,11 @@ services:
     image: linuxserver/qbittorrent:4.6.7
     container_name: vpn-qbittorrent
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - WEBUI_PORT=8090
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=${WEBUI_PORT}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/qbittorrent:/config
       - /volume1/Media:/data
@@ -80,10 +80,10 @@ services:
     image: linuxserver/prowlarr:latest
     container_name: vpn-prowlarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/prowlarr:/config
     network_mode: service:gluetun
@@ -100,10 +100,10 @@ services:
     image: linuxserver/sonarr:latest
     container_name: vpn-sonarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/sonarr:/config
       - /volume1/Media:/data
@@ -121,10 +121,10 @@ services:
     image: linuxserver/radarr:latest
     container_name: vpn-radarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/radarr:/config
       - /volume1/Media:/data
@@ -148,7 +148,7 @@ services:
     environment:
       - PUID=1031
       - PGID=65537
-      - TZ=AmericaLos_Angeles
+      - TZ=${TZ}
     volumes:
      - /volume1/docker/overseerr:/config
     security_opt:
@@ -161,10 +161,10 @@ services:
     image: linuxserver/bazarr:latest
     container_name: vpn-bazarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/bazarr:/config
       - /volume1/Media:/data
@@ -179,13 +179,13 @@ services:
       disable: true
 
   readarr:
-    image: linuxserver/readarr:develop
+    image: ghcr.io/pennydreadful/bookshelf:hardcover
     container_name: vpn-readarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/readarr:/config
       - /volume1/Media:/data
@@ -198,10 +198,9 @@ services:
     restart: always
     healthcheck:
       disable: true
-
       
   calibre-server:
-    image: ghcr.io/linuxserver/calibre
+    image: linuxserver/calibre:latest
     container_name: vpn-calibre-server
     environment:
       - PUID=1031
@@ -256,7 +255,7 @@ services:
       - /volume1/docker/homarr/icons:/app/public/icons:rw
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-     TZ: America/Los_Angeles
+     TZ: ${TZ}
     network_mode: service:gluetun
     depends_on:
       gluetun:
@@ -266,10 +265,10 @@ services:
     image: linuxserver/lidarr:latest
     container_name: vpn-lidarr
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
     volumes:
       - /volume1/docker/lidarr:/config
       - /volume1/Media:/data
@@ -282,19 +281,3 @@ services:
     restart: always
     healthcheck:
       disable: true
-
-  openbooks:
-    image: evanbuss/openbooks:latest
-    container_name: vpn-openbooks
-    network_mode: service:gluetun
-    depends_on:
-      gluetun:
-        condition: service_healthy
-    environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-    volumes:
-      - /volume1/docker/openbooks:/config
-      - /volume1/Media/Books/Daniel/uploads:/downloads
-    restart: always

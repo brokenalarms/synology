@@ -5,12 +5,12 @@ services:
     ports:
       - 32400:32400/tcp
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
-      - UMASK=022
-      - VERSION=latest
-      - PLEX_CLAIM= #Your Plex Claim Code
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK=${UMASK}
+      - VERSION=${PLEX_VERSION}
+      - PLEX_CLAIM=${PLEX_CLAIM} #Your Plex Claim Code
     volumes:
       - /volume1/docker/plex:/config
       - /volume1/Media:/data/media
