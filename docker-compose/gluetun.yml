@@ -143,8 +143,8 @@ services:
       gluetun:
         condition: service_healthy
     environment:
-      - PUID=1031
-      - PGID=65537
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=${TZ}
     volumes:
      - /volume1/docker/overseerr:/config
@@ -200,9 +200,9 @@ services:
     image: linuxserver/calibre:latest
     container_name: vpn-calibre-server
     environment:
-      - PUID=1031
-      - PGID=65537
-      - TZ=America/Los_Angeles
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
       - CUSTOM_USER=${CALIBRE_CUSTOM_USER}
       - PASSWORD=${CALIBRE_PASSWORD}
       - CUSTOM_PORT=${CALIBRE_CUSTOM_PORT}
@@ -222,10 +222,10 @@ services:
     image: linuxserver/sabnzbd:latest
     container_name: vpn-sabnzbd
     environment:
-      - PUID=1031
-      - PGID=65537
-      - UMASK=022
-      - TZ=America/Los_Angeles
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+      - TZ=${TZ}
     volumes:
       - /volume1/docker/sabnzbd:/config
       - /volume1/Media:/data
