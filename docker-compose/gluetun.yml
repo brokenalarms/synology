@@ -1,6 +1,3 @@
-env_file:
-  - stack.env
-
 services:
   gluetun:
     image: qmcgaw/gluetun:latest
