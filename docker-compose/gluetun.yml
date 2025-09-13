@@ -176,13 +176,15 @@ services:
       disable: true
 
   readarr:
-    image: ghcr.io/pennydreadful/bookshelf:hardcover
+    # image: ghcr.io/pennydreadful/bookshelf:hardcover
+    image: ghcr.io/faustvii/readarr:latest
     container_name: vpn-readarr
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
       - UMASK=${UMASK}
+    user: "${PUID}:${PGID}"
     volumes:
       - /volume1/docker/readarr:/config
       - /volume1/Media:/data
@@ -259,7 +261,8 @@ services:
         condition: service_healthy
 
   lidarr:
-    image: linuxserver/lidarr:latest
+    # image: linuxserver/lidarr:latest
+    image: blampe/lidarr:latest
     container_name: vpn-lidarr
     environment:
       - PUID=${PUID}
