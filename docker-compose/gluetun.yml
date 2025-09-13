@@ -61,7 +61,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - WEBUI_PORT=${WEBUI_PORT}
+      - WEBUI_PORT=8090
       - UMASK=${UMASK}
     volumes:
       - /volume1/docker/qbittorrent:/config
