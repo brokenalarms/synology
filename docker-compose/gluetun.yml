@@ -18,6 +18,7 @@ services:
       - 8787:8787/tcp # readarr
       - 775:8095/tcp # calibre-server VNC
       - 776:8081/tcp # calibre-server sharing
+      - 777:8181/tcp # calibre-server https VNC sharing
       - 4755:7575/tcp # homarr
       - 8686:8686/tcp # lidarr
       - 8888:80/tcp # openbooks
@@ -208,6 +209,7 @@ services:
       - CUSTOM_USER=${CALIBRE_CUSTOM_USER}
       - PASSWORD=${CALIBRE_PASSWORD}
       - CUSTOM_PORT=${CALIBRE_CUSTOM_PORT}
+      - CUSTOM_HTTPS_PORT=${CALIBRE_CUSTOM_HTTPS_PORT}
       - CLI_ARGS=${CALIBRE_CLI_ARGS}
     volumes:
       - /volume1/docker/calibre/config:/config
