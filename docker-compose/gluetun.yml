@@ -21,19 +21,18 @@ services:
       - 777:8181/tcp # calibre-server https VNC sharing
       - 4755:7575/tcp # homarr
       - 8686:8686/tcp # lidarr
-      - 8888:80/tcp # openbooks
+      - 8083:8083/tcp # calibre-web
     volumes:
       - /volume1/docker/gluetun:/gluetun
       - /volume1/docker/qbittorrent:/config
-      - /volume1/Media/downloads:/data/torrents      
+      - /volume1/Media/downloads:/data/torrents
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
       - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
       - VPN_TYPE=${VPN_TYPE}
-      - VPN_ENDPOINT_IP=${VPN_ENDPOINT_IP}
-      - VPN_ENDPOINT_PORT=${VPN_ENDPOINT_PORT}
+      - WIREGUARD_ENDPOINT_IP=${WIREGUARD_ENDPOINT_IP}
       - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
       - VPN_PORT_FORWARDING_PROVIDER=${VPN_PORT_FORWARDING_PROVIDER}
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY} #remove if using openvpn
@@ -50,7 +49,12 @@ services:
     security_opt:
       - no-new-privileges:true
     restart: always
-
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "--tries=1", "--timeout=5", "https://cloudflare.com/cdn-cgi/trace"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   qbittorrent:
     image: linuxserver/qbittorrent:4.6.7
@@ -136,9 +140,10 @@ services:
     healthcheck:
       disable: true
 
-  overseerr:
-    image: linuxserver/overseerr
-    container_name: vpn-overseerr
+  seerr:
+    init: true
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: vpn-seerr
     network_mode: service:gluetun # run on the vpn network
     depends_on:
       gluetun:
@@ -148,12 +153,16 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-     - /volume1/docker/overseerr:/config
+     - /volume1/docker/seerr:/app/config
     security_opt:
       - no-new-privileges:true
-    restart: always
     healthcheck:
-      disable: true
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    restart: unless-stopped
 
   bazarr:
     image: linuxserver/bazarr:latest
@@ -216,6 +225,27 @@ services:
       - /volume1/docker/calibre/upload:/uploads
       - /volume1/docker/calibre/plugins:/plugins
       - /volume1/Media:/data #this is where your ebooks will end up
+    restart: unless-stopped
+    network_mode: service:gluetun # run on the vpn network
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - CUSTOM_USER=${CALIBRE_CUSTOM_USER}
+      - PASSWORD=${CALIBRE_PASSWORD}
+      - CUSTOM_PORT=${CALIBRE_CUSTOM_PORT}
+      - CUSTOM_HTTPS_PORT=${CALIBRE_CUSTOM_HTTPS_PORT}
+      - CLI_ARGS=${CALIBRE_CLI_ARGS}
+    volumes:
+      - /volume1/docker/calibre-web-daniel/config:/config
+      - /volume1/Media/Books/Daniel/Daniel-Calibre_Library:/books #this is where your ebooks will end up
     restart: unless-stopped
     network_mode: service:gluetun # run on the vpn network
     depends_on:
